@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REACTOR GAMES SP Z O O | Core Game Development & Publishing</title>
+    <meta name="description" content="Independent software publishers and game development studio in Poland. Powering the next generation of interactive software.">
+    <style>
+        /* DESIGN SYSTEM: NUCLEAR CYBER STUDIO */
+        :root {
+            --bg-base: #030504;         /* Deep Core Black */
+            --bg-panel: #0A110D;        /* Dark Slate Green */
+            --neon-green: #39FF14;      /* Toxic Neon Green */
+            --neon-yellow: #DFFF00;     /* Radioactive Yellow */
+            --text-main: #F8FAFC;       /* Off-White */
+            --text-muted: #8B9A92;      /* Mutated Green/Gray */
+            --border-neon: rgba(57, 255, 20, 0.3);
+            
+            --font-display: 'Rajdhani', 'Oswald', sans-serif;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-code: 'Fira Code', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--text-main);
+            background-color: var(--bg-base);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Radioactive Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(57, 255, 20, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(57, 255, 20, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* Core Ambient Glows */
+        .glow-core {
+            position: fixed;
+            top: -20vh; left: -10vw;
+            width: 50vw; height: 50vh;
+            background: radial-gradient(circle, rgba(57, 255, 20, 0.1) 0%, transparent 60%);
+            border-radius: 50%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .glow-leak {
+            position: fixed;
+            bottom: -20vh; right: -10vw;
+            width: 50vw; height: 50vh;
+            background: radial-gradient(circle, rgba(223, 255, 0, 0.05) 0%, transparent 60%);
+            border-radius: 50%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            background: rgba(3, 5, 4, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(57, 255, 20, 0.2);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Radioactive Icon */
+        .logo-icon {
+            width: 30px; height: 30px;
+            position: relative;
+            background: var(--neon-green);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            box-shadow: 0 0 15px var(--neon-green);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-icon::after {
+            content: '';
+            width: 14px; height: 14px;
+            background: var(--bg-base);
+            border-radius: 50%;
+        }
+
+        .nav-links { display: flex; gap: 35px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;}
+        .nav-links a { text-decoration: none; color: var(--text-muted); transition: color 0.3s; }
+        .nav-links a:hover { color: var(--neon-green); }
+
+        .btn-nav {
+            background: transparent;
+            color: var(--neon-green) !important;
+            padding: 8px 24px;
+            border: 1px solid var(--neon-green);
+            border-radius: 4px;
+            transition: all 0.3s;
+            font-family: var(--font-code);
+        }
+        .btn-nav:hover { background: var(--neon-green); color: var(--bg-base) !important; box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
+
+        /* --- HERO SECTION --- */
+        header {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 140px 5% 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 60px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            font-family: var(--font-code);
+            background: rgba(57, 255, 20, 0.1);
+            color: var(--neon-green);
+            padding: 8px 16px;
+            border-left: 4px solid var(--neon-green);
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 6vw, 4.8rem);
+            line-height: 1.1;
+            font-weight: 800;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .text-neon {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+
+        header p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 550px;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: var(--neon-green);
+            color: var(--bg-base);
+            padding: 18px 40px;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--neon-yellow);
+            box-shadow: 0 0 30px rgba(223, 255, 0, 0.5);
+        }
+
+        /* Abstract Terminal Graphic */
+        .hero-graphic {
+            position: relative;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .core-panel {
+            width: 360px; height: 320px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-neon);
+            padding: 20px;
+            box-shadow: inset 0 0 30px rgba(57, 255, 20, 0.1), 0 20px 50px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+        }
+
+        .core-panel::before {
+            content: 'CORE_RUNTIME';
+            position: absolute; top: -12px; left: 20px;
+            background: var(--bg-base); padding: 0 10px;
+            color: var(--neon-green); font-family: var(--font-code); font-size: 0.8rem;
+        }
+
+        .terminal-screen {
+            flex: 1;
+            background: #000;
+            border: 1px solid rgba(57,255,20,0.2);
+            padding: 15px;
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            color: var(--neon-green);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-radius: 4px;
+        }
+
+        .term-line { display: flex; gap: 10px; opacity: 0.8; }
+        .term-line::before { content: '>'; color: var(--neon-yellow); }
+
+        .progress-bar { width: 100%; height: 8px; background: rgba(57,255,20,0.1); margin-top: auto; border-radius: 4px;}
+        .progress-fill { height: 100%; width: 75%; background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); border-radius: 4px; animation: pulse 2s infinite;}
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        /* --- OPERATIONS GRID --- */
+        .section {
+            padding: 100px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            color: var(--text-main);
+            font-weight: 800;
+            text-transform: uppercase;
+            border-left: 5px solid var(--neon-green);
+            padding-left: 20px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: var(--bg-panel);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 40px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-green);
+            box-shadow: 0 10px 30px rgba(57, 255, 20, 0.1);
+        }
+
+        .card-icon {
+            font-family: var(--font-code);
+            font-size: 1.5rem;
+            color: var(--neon-green);
+            margin-bottom: 25px;
+            display: inline-block;
+            background: rgba(57, 255, 20, 0.1);
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+
+        .service-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            text-transform: uppercase;
+        }
+
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* --- APP PROMO (CRITICAL FOR GOOGLE PLAY CONSOLE) --- */
+        .app-promo {
+            background: linear-gradient(135deg, var(--bg-panel) 0%, #000 100%);
+            border: 1px solid var(--border-neon);
+            border-radius: 24px;
+            padding: 80px 5%;
+            margin: 60px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-text h2 {
+            font-family: var(--font-display);
+            font-size: 3.2rem;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .app-list { list-style: none; margin: 30px 0; }
+        .app-list li {
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            color: var(--text-muted);
+        }
+        .app-list li::before {
+            content: '>>';
+            font-family: var(--font-code);
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+
+        /* Mobile Device Mockup for Software/Game Launcher */
+        .mockup-phone {
+            width: 100%;
+            max-width: 320px;
+            height: 600px;
+            margin: 0 auto;
+            background: #000;
+            border: 8px solid #222;
+            border-radius: 35px;
+            padding: 15px;
+            box-shadow: 0 0 40px rgba(57, 255, 20, 0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 20px;
+            background: #222;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            flex: 1;
+            background: var(--bg-panel);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .ui-header {
+            padding: 20px;
+            background: #000;
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: var(--neon-green);
+            border-bottom: 1px solid var(--border-neon);
+            letter-spacing: 2px;
+        }
+
+        .ui-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .game-banner {
+            height: 140px;
+            background: linear-gradient(45deg, #0A110D, #1a3322);
+            border: 1px solid var(--neon-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 1.4rem;
+            color: var(--text-main);
+            text-shadow: 2px 2px 0 var(--bg-base);
+        }
+
+        .ui-module {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 2px solid var(--neon-green);
+        }
+        
+        .ui-module-title { font-family: var(--font-code); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px; }
+        .ui-module-val { font-size: 1.1rem; font-weight: bold; color: var(--text-main); }
+
+        .ui-btn {
+            margin-top: auto;
+            background: var(--neon-green);
+            color: var(--bg-base);
+            text-align: center;
+            padding: 15px;
+            font-family: var(--font-display);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+        }
+
+        /* --- VERIFICATION REGISTRY (EXACT D&B MATCH) --- */
+        .registry-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 60px;
+        }
+
+        .data-panel {
+            background: var(--bg-panel);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .data-row {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed rgba(255,255,255,0.05);
+        }
+        .data-row:last-child { border: none; margin: 0; padding: 0; }
+
+        .data-label {
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            color: var(--neon-green);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .data-value {
+            font-size: 1.05rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 16px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-family: var(--font-body);
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #000;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 80px 5% 40px;
+            margin-top: 80px;
+        }
+
+        .footer-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            margin-bottom: 60px;
+        }
+
+        .footer-col h4 {
+            color: var(--neon-green);
+            font-family: var(--font-display);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 12px; }
+        .footer-col a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            font-family: var(--font-code);
+        }
+        .footer-col a:hover { color: var(--text-main); }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: #444;
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 992px) {
+            .hero-grid, .app-promo, .registry-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .hero-graphic { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-core"></div>
+    <div class="glow-leak"></div>
+
+    <nav>
+        <div class="logo">
+            <div class="logo-icon"></div>
+            REACTOR GAMES
+        </div>
+        <div class="nav-links">
+            <a href="#services">System Design</a>
+            <a href="#publishing">Digital Releases</a>
+            <a href="#registry">Corporate Data</a>
+            <a href="#contact" class="btn-nav">Terminal Login</a>
+        </div>
+    </nav>
+
+    <header>
+        <div class="hero-grid">
+            <div>
+                <div class="hero-tag">System Design & Prepackaged Software</div>
+                <h1>Powering the Core of <br><span class="text-neon">Interactive Media</span>.</h1>
+                <p>REACTOR GAMES SP Z O O is an independent game development studio and software publisher. We architect secure computer systems and deploy high-energy digital experiences.</p>
+                <a href="#publishing" class="btn-primary">Initialize Core</a>
+            </div>
+            
+            <div class="hero-graphic">
+                <div class="core-panel">
+                    <div class="terminal-screen">
+                        <div class="term-line">init reactor.boot()</div>
+                        <div class="term-line">loading engine_v4... [OK]</div>
+                        <div class="term-line" style="color: var(--neon-yellow);">compile software_publisher...</div>
+                        <div class="term-line">connecting to server...</div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="services" class="section">
+        <div class="section-header">
+            <h2>Core Infrastructure</h2>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="card-icon">{PUB_API}</div>
+                <h3>Software Publishers</h3>
+                <p>Officially licensed Software Publishers. We manage the development, deployment, and distribution of digital applications and games to global app marketplaces.</p>
+            </div>
+            <div class="service-card">
+                <div class="card-icon">&lt;SYS_CORE&gt;</div>
+                <h3>Computer Systems Design</h3>
+                <p>Executing high-level Computer Systems Design and Related Services to architect secure backend environments and multiplayer server structures.</p>
+            </div>
+            <div class="service-card">
+                <div class="card-icon">[PKG_EXE]</div>
+                <h3>Prepackaged Software</h3>
+                <p>Specializing in the creation of Prepackaged software. We deliver polished, consumer-ready digital entertainment that runs flawlessly across mobile platforms.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="publishing" class="section" style="padding-top: 0;">
+        <div class="app-promo">
+            <div class="app-text">
+                <div class="hero-tag" style="border-color: var(--neon-yellow); color: var(--neon-yellow); background: transparent;">Google Play Developer Entity</div>
+                <h2>Reactor Core Hub</h2>
+                <p style="font-size: 1.15rem; color: var(--text-main); margin-bottom: 15px; font-weight: 600;">
+                    As an official Software Publisher, <strong>REACTOR GAMES SP Z O O develops and distributes our prepackaged interactive software directly via mobile app stores.</strong>
+                </p>
+                <p style="color: var(--text-muted); line-height: 1.7;">
+                    Our digital portfolio is managed through our proprietary mobile applications. The Google Play ecosystem serves as the primary distribution channel for our mobile games, companion applications, and proprietary software tools designed by our systems design team.
+                </p>
+                
+                <ul class="app-list">
+                    <li>Direct distribution of internally developed mobile games.</li>
+                    <li>Secure in-app purchases and digital licensing verification.</li>
+                    <li>Over-the-air content updates for prepackaged gaming software.</li>
+                    <li>Integration with Google Play Games services for leaderboards.</li>
+                </ul>
+            </div>
+            
+            <div class="mockup-phone">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                    <div class="ui-header">REACTOR_OS</div>
+                    <div class="ui-content">
+                        
+                        <div class="game-banner">
+                            MELTDOWN PROTOCOL
+                        </div>
+
+                        <div class="ui-module">
+                            <div class="ui-module-title">PUBLISHER</div>
+                            <div class="ui-module-val" style="color: var(--neon-green);">REACTOR GAMES</div>
+                        </div>
+
+                        <div class="ui-module" style="border-left-color: var(--neon-yellow);">
+                            <div class="ui-module-title">LATEST PATCH</div>
+                            <div class="ui-module-val">v4.0.1 - Engine Core</div>
+                        </div>
+
+                        <div class="ui-btn">LAUNCH EXECUTABLE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="registry" class="section">
+        <div class="section-header">
+            <h2>Corporate Database Registry</h2>
+        </div>
+        <div class="registry-grid">
+            
+            <div class="data-panel">
+                <div class="data-row">
+                    <span class="data-label">Legal Entity Name</span>
+                    <span class="data-value">REACTOR GAMES SP Z O O</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Industry Classification Profile</span>
+                    <span class="data-value" style="font-size: 0.95rem; line-height: 1.6;">
+                        • Software Publishers<br>
+                        • Computer Systems Design and Related Services<br>
+                        • Publishing Industries<br>
+                        • Information<br>
+                        • Prepackaged software
+                    </span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Country of Registration</span>
+                    <span class="data-value" style="font-size: 0.95rem;">
+                        Poland
+                    </span>
+                </div>
+                <div class="data-row" style="border: none;">
+                    <span class="data-label">Official Developer Endpoint</span>
+                    <span class="data-value" style="color: var(--neon-green);">info@reactorgames.cloud</span>
+                </div>
+            </div>
+
+            <div id="contact">
+                <h3 style="font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 20px; text-transform: uppercase;">System Support</h3>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">Contact our development team to report bugs in our prepackaged software, inquire about publishing rights, or request technical support for mobile applications.</p>
+                
+                <form onsubmit="event.preventDefault();">
+                    <input type="text" placeholder="Player Name / License ID" required>
+                    <input type="email" placeholder="Contact Email Address" required>
+                    <textarea placeholder="Describe your software inquiry or support request..." rows="5" required></textarea>
+                    <button type="submit" class="btn-primary" style="width: 100%; border: none; cursor: pointer; box-shadow: none;">Submit Transmission</button>
+                </form>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="logo" style="margin-bottom: 20px;">
+                    <div class="logo-icon" style="width: 24px; height: 24px; box-shadow: none;"></div>
+                    REACTOR GAMES
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Architecting, designing, and publishing cutting-edge prepackaged software and interactive entertainment in Poland.</p>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Digital Platforms</h4>
+                <ul>
+                    <li><a href="#">Google Play Publisher Status</a></li>
+                    <li><a href="#">Report Software Bug</a></li>
+                    <li><a href="#" style="color: var(--text-main); font-weight: bold;">Request Account & Data Deletion</a></li>
+                    <li><a href="#">Game Server Status</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Legal & Compliance</h4>
+                <ul>
+                    <li><a href="#">End User License Agreement (EULA)</a></li>
+                    <li><a href="#">Software Publishing Terms</a></li>
+                    <li><a href="#">Privacy Policy (GDPR)</a></li>
+                    <li><a href="#">In-App Purchase Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 REACTOR GAMES SP Z O O. Registered in Poland. Systems Operational.
+        </div>
+    </footer>
+
+</body>
+</html>
